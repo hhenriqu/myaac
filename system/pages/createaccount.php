@@ -212,10 +212,11 @@ if ($save) {
         if ($config_salt_enabled)
             $new_account->setCustomField('salt', $salt);
 
-        $new_account->setCustomField('created', time());
+        $createdField = $db->hasColumn('accounts', 'created') ? 'created' : 'creation'; // HMO-54: Canary schema uses `creation`
+        $new_account->setCustomField($createdField, time());
         $new_account->logAction('Account created.');
 
-        if ($config['account_country']) {
+        if ($config['account_country'] && $db->hasColumn('accounts', 'country')) { // HMO-54: not present in Canary schema
             $new_account->setCustomField('country', $country);
         }
 

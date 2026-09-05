@@ -149,7 +149,8 @@ class OTS_Account extends OTS_Row_DAO implements IteratorAggregate, Countable
         }
 
         // saves blank account info
-        $this->db->exec('INSERT INTO `accounts` (' . (isset($id) ? '`id`,' : '') . (isset($nameOrNumber) ? '`' . $nameOrNumber . '`,' : '') . '`password`, `email`, `created`) VALUES (' . (isset($id) ? $id . ',' : '') . (isset($nameOrNumber) ? $this->db->quote($nameOrNumberValue) . ',' : '') . ' \'\', \'\',' . time() . ')');
+        $createdColumn = $this->db->hasColumn('accounts', 'created') ? 'created' : 'creation'; // HMO-54: Canary schema uses `creation`, not `created`
+        $this->db->exec('INSERT INTO `accounts` (' . (isset($id) ? '`id`,' : '') . (isset($nameOrNumber) ? '`' . $nameOrNumber . '`,' : '') . '`password`, `email`, `' . $createdColumn . '`) VALUES (' . (isset($id) ? $id . ',' : '') . (isset($nameOrNumber) ? $this->db->quote($nameOrNumberValue) . ',' : '') . ' \'\', \'\',' . time() . ')');
 
         if (isset($name)) {
             $this->data['name'] = $name;
@@ -211,7 +212,14 @@ class OTS_Account extends OTS_Row_DAO implements IteratorAggregate, Countable
         }
 
         // SELECT query on database
-        $this->data = $this->db->query('SELECT `id`, ' . $nameOrNumber . '`password`, `email`, `coins`, `rlname`, `phone`, `location`, `country`, `web_flags`, ' . ($this->db->hasColumn('accounts', 'premdays') ? '`premdays`, ' : '') . ($this->db->hasColumn('accounts', 'lastday') ? '`lastday`, ' : ($this->db->hasColumn('accounts', 'premend') ? '`premend`,' : ($this->db->hasColumn('accounts', 'premium_ends_at') ? '`premium_ends_at`,' : ''))) . '`created` FROM `accounts` WHERE `' . $numberColumn . '` = ' . (int)$id)->fetch();
+        $createdColumnSelect = $this->db->hasColumn('accounts', 'created') ? '`created`' : '`creation` AS `created`'; // HMO-54: Canary schema uses `creation`, not `created`
+        $optionalColumns = ''; // HMO-54: Canary schema lacks rlname/phone/location/country/web_flags
+        foreach (array('rlname', 'phone', 'location', 'country', 'web_flags') as $optionalColumn) {
+            if ($this->db->hasColumn('accounts', $optionalColumn)) {
+                $optionalColumns .= '`' . $optionalColumn . '`, ';
+            }
+        }
+        $this->data = $this->db->query('SELECT `id`, ' . $nameOrNumber . '`password`, `email`, `coins`, ' . $optionalColumns . ($this->db->hasColumn('accounts', 'premdays') ? '`premdays`, ' : '') . ($this->db->hasColumn('accounts', 'lastday') ? '`lastday`, ' : ($this->db->hasColumn('accounts', 'premend') ? '`premend`,' : ($this->db->hasColumn('accounts', 'premium_ends_at') ? '`premium_ends_at`,' : ''))) . $createdColumnSelect . ' FROM `accounts` WHERE `' . $numberColumn . '` = ' . (int)$id)->fetch();
         self::$cache[$id] = $this->data;
     }
 
@@ -302,7 +310,29 @@ class OTS_Account extends OTS_Row_DAO implements IteratorAggregate, Countable
         }
 
         // UPDATE query on database
-        $this->db->exec('UPDATE `accounts` SET ' . ($this->db->hasColumn('accounts', 'name') ? '`name` = ' . $this->db->quote($this->data['name']) . ',' : '') . '`password` = ' . $this->db->quote($this->data['password']) . ', `email` = ' . $this->db->quote($this->data['email']) . ', `rlname` = ' . $this->db->quote($this->data['rlname']) . ', `location` = ' . $this->db->quote($this->data['location']) . ', `country` = ' . $this->db->quote($this->data['country']) . ', `web_flags` = ' . (int)$this->data['web_flags'] . ', ' . ($this->db->hasColumn('accounts', 'premdays') ? '`premdays` = ' . (int)$this->data['premdays'] . ',' : '') . '`' . $field . '` = ' . (int)$this->data[$field] . ' WHERE `id` = ' . $this->data['id']);
+        $setParts = array(); // HMO-54: Canary schema lacks rlname/location/country/web_flags
+        if ($this->db->hasColumn('accounts', 'name')) {
+            $setParts[] = '`name` = ' . $this->db->quote($this->data['name']);
+        }
+        $setParts[] = '`password` = ' . $this->db->quote($this->data['password']);
+        $setParts[] = '`email` = ' . $this->db->quote($this->data['email']);
+        if ($this->db->hasColumn('accounts', 'rlname')) {
+            $setParts[] = '`rlname` = ' . $this->db->quote($this->data['rlname']);
+        }
+        if ($this->db->hasColumn('accounts', 'location')) {
+            $setParts[] = '`location` = ' . $this->db->quote($this->data['location']);
+        }
+        if ($this->db->hasColumn('accounts', 'country')) {
+            $setParts[] = '`country` = ' . $this->db->quote($this->data['country']);
+        }
+        if ($this->db->hasColumn('accounts', 'web_flags')) {
+            $setParts[] = '`web_flags` = ' . (int)$this->data['web_flags'];
+        }
+        if ($this->db->hasColumn('accounts', 'premdays')) {
+            $setParts[] = '`premdays` = ' . (int)$this->data['premdays'];
+        }
+        $setParts[] = '`' . $field . '` = ' . (int)$this->data[$field];
+        $this->db->exec('UPDATE `accounts` SET ' . implode(', ', $setParts) . ' WHERE `id` = ' . $this->data['id']);
     }
 
     /**

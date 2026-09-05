@@ -214,7 +214,9 @@ class CreateCharacter
         }
 
         $player->save();
-        $player->setCustomField('created', time());
+        if ($db->hasColumn('players', 'created')) { // HMO-54: not present in Canary schema
+            $player->setCustomField('created', time());
+        }
 
         $player = new OTS_Player();
         $player->find($name);
