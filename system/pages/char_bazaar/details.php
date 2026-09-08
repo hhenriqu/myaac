@@ -32,11 +32,17 @@ $BlessTwist = ($character['blessings8'] >= 1) ? 'yes' : 'no';
 /* GET BLESS END */
 
 /* GET CHARM CHARACTER */
-$getCharm = $db->query("SELECT `player_guid`, `charm_points`, `charm_expansion`, `rune_wound`, `rune_enflame`, `rune_poison`, `rune_freeze`, `rune_zap`, `rune_curse`, `rune_cripple`, `rune_parry`, `rune_dodge`, `rune_adrenaline`, `rune_numb`, `rune_cleanse`, `rune_bless`, `rune_scavenge`, `rune_gut`, `rune_low_blow`, `rune_divine`, `rune_vamp`, `rune_void`, `UsedRunesBit` FROM `player_charms` WHERE `player_guid` = {$getAuction['player_id']}");
+// player_charms schema 59 (HMO-64/upstream sync 15.25): player_guid -> player_id,
+// the 19 rune_* boolean columns are gone; which charms are unlocked now lives in
+// the UnlockedRunesBit bitmask (bit index == charmRune_t enum value, confirmed
+// against src/io/iobestiary.cpp:113 `charm->binary = 1 << activeCharm` and the
+// charmRune_t order in src/creatures/creatures_definitions.hpp).
+$getCharm = $db->query("SELECT `player_id`, `charm_points`, `charm_expansion`, `UsedRunesBit`, `UnlockedRunesBit` FROM `player_charms` WHERE `player_id` = {$getAuction['player_id']}");
 $getCharm = $getCharm->fetch();
 
 $Charm_Points = $getCharm['charm_points'] ?? '0';
 $Charm_UsedPoints = $getCharm['UsedRunesBit'] ?? '0';
+$Charm_UnlockedBit = (int)($getCharm['UnlockedRunesBit'] ?? 0);
 $Charm_Expansion = isset($getCharm['charm_expansion']) && $getCharm['charm_expansion'] == 1
     ? "<img src='{$template_path}/images/premiumfeatures/icon_yes.png'> yes"
     : "<img src='{$template_path}/images/premiumfeatures/icon_no.png'> no";
@@ -834,8 +840,10 @@ $End = date('Y-m-d H:i:s', strtotime($getAuction['date_end']));
         $Charm_CountRunes = 0;
         $charmNames = ['wound', 'enflame', 'poison', 'freeze', 'zap', 'curse', 'cripple', 'parry', 'dodge', 'adrenaline', 'numb', 'cleanse', 'bless', 'scavenge', 'gut', 'low_blow', 'divine', 'vamp', 'void'];
         $runes = [];
-        foreach ($charmNames as $charm) {
-            if (!$getCharm || $charm < 1) {
+        // $k is the charmRune_t enum value (0=wound .. 18=void), so bit $k of
+        // UnlockedRunesBit tells whether this specific charm is unlocked.
+        foreach ($charmNames as $k => $charm) {
+            if (!$getCharm || (($Charm_UnlockedBit >> $k) & 1) === 0) {
                 $runes["rune_$charm"] = '<img src="' . $template_path . '/images/premiumfeatures/icon_no.png">';
                 continue;
             }
