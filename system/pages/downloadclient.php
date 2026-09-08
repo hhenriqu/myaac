@@ -19,7 +19,7 @@ $playot_kit_url    = '/kit/playot-client-config-15.25.zip';
 $playot_kit_sha256 = 'b5d9ec425c345fb14cf02f5692649fd7dedbbfe7c4e5f0b5cf86a7b284b36ef5';
 
 // PLAYOT-AVISO-VIRADA: deixe string vazia depois que a virada terminar (HMO-66).
-$playot_switch_notice = '<strong>A virada para o protocolo 15.25 esta acontecendo agora.</strong> O cliente antigo deixa de conectar; o cliente desta pagina e o certo daqui para a frente. Se o servidor nao responder nos proximos minutos, e a propria virada — tente de novo em seguida. Contas e personagens nao mudam.';
+$playot_switch_notice = 'O PlayOT ja esta no protocolo 15.25. Se o cliente antigo parou de conectar, e esperado: baixe o cliente novo seguindo os passos abaixo. Suas contas e personagens continuam os mesmos.';
 
 $playot_server = configLua('serverName');
 
