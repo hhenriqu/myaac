@@ -1,0 +1,11 @@
+Module
+  name: playot_branding
+  description: Identidade visual do PlayOT sobre o OTClient (HMO-77)
+  author: H. Moraes Tecnologia
+  website: https://playot.srv702207.hstgr.cloud
+  sandboxed: false
+  scripts: [ branding ]
+  @onLoad: init()
+  @onUnload: terminate()
+  autoload: true
+  autoload-priority: 1100

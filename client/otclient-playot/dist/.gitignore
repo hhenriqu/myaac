@@ -1,0 +1,3 @@
+# O zip do kit (45 MB) nao entra no git. Ele fica na VPS em
+# ~/playot-client-kits/ e e conferido pelo .sha256 versionado ao lado.
+*.zip

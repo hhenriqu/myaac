@@ -1,0 +1,75 @@
+PlayOT - Cliente OTClient
+=========================
+
+Este e o cliente do PlayOT. Diferente do pacote antigo, aqui vem o cliente
+inteiro: voce extrai e joga. Nao precisa baixar o cliente oficial do Tibia.
+
+Na primeira vez que voce abrir, o cliente vai baixar sozinho os graficos do
+jogo (cerca de 1 GB). Isso acontece uma vez so. Deixe terminar.
+
+
+O QUE VOCE PRECISA
+------------------
+Windows 10 ou 11, 64 bits, cerca de 2 GB de espaco livre e internet para o
+primeiro download dos graficos.
+
+
+PASSO A PASSO
+-------------
+1. Extraia este zip numa pasta sua - por exemplo C:\PlayOT.
+   NAO rode de dentro do zip e nao deixe em Arquivos de Programas: o cliente
+   precisa gravar os graficos na propria pasta.
+
+2. Crie sua conta no site, se ainda nao tem:
+
+   https://playot.srv702207.hstgr.cloud/?subtopic=createaccount
+
+3. Abra otclient.exe.
+
+4. Na primeira abertura vai aparecer "Assets for client 15.25 are not
+   installed. Download them now?". Clique em Download e espere a barra
+   terminar. Sao alguns minutos.
+
+5. Digite o e-mail e a senha da conta do site e entre.
+   Voce nao digita endereco nem porta: o cliente ja vem apontado para o PlayOT.
+
+
+PROBLEMAS COMUNS
+----------------
+"Assets for client 15.25 are not installed"
+   E o passo 4, e normal na primeira vez. Clique em Download.
+
+"No assets source found for client 15.25"
+   O download dos graficos nao conseguiu sair. Quase sempre e antivirus ou
+   firewall bloqueando o otclient.exe. Libere e abra de novo.
+
+"Email or password is not correct"
+   A conta e a do site (e-mail + senha), nao o nome do personagem.
+
+O cliente abre e fecha na hora
+   Extraia numa pasta com permissao de escrita (C:\PlayOT serve;
+   C:\Program Files nao).
+
+Tela preta ou muito lenta
+   Atualize o driver de video. O cliente usa OpenGL.
+
+
+SUPORTE
+-------
+Ao pedir ajuda, informe a versao que aparece na tela de entrada:
+
+   PlayOT - protocolo 15.25 - kit @@KIT@@
+
+Detalhes tecnicos deste pacote:
+   OTClient (opentibiabr) release @@TAG@@
+   commit @@COMMIT@@
+   protocolo do servidor: 15.25
+
+
+LICENCA E CREDITOS
+------------------
+O cliente e o OTClient Redemption da opentibiabr, distribuido sob licenca MIT.
+O texto da licenca esta em LICENSE-OTCLIENT.txt, neste mesmo pacote.
+
+Os graficos do jogo sao da CipSoft e NAO fazem parte deste pacote: o cliente
+os baixa de uma fonte publica na primeira execucao, na sua maquina.
