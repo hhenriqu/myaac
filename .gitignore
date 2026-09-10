@@ -82,3 +82,7 @@ landing
 
 # others/rest
 system/pages/downloads.php
+
+# HMO-79: kit1 do OTClient e binario grande (~43 MB), fica servido no VPS
+# em kit/ mas fora do git; sha256 e LEIA-ME sao versionados como manifesto.
+kit/playot-otclient-4.1-windows-kit1.zip

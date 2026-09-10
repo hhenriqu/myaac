@@ -3,23 +3,32 @@ defined('MYAAC') or die('Direct access not allowed!');
 $title = 'Download do Cliente';
 
 // ---------------------------------------------------------------------------
-// PlayOT — pagina de download do cliente 15.25 (HMO-66).
+// PlayOT — pagina de download do cliente (HMO-79).
 //
-// O PlayOT nao distribui cliente proprio: o jogador baixa o cliente oficial
-// empacotado por dudantas/tibia-client e sobrescreve um unico arquivo,
-// conf/config.ini, com o kit de configuracao publicado aqui (~2 KB).
-// Nenhum asset da CipSoft e redistribuido por nos.
+// Fundador confirmou (HMO-79, 2026-09-10): o
+// kit1 (OTClient 4.1 + camada PlayOT) rodou numa maquina Windows limpa,
+// incluindo o download de ~1 GB de assets pelo caminho do jogador. Ver
+// issue HMO-79 - publicado em producao a partir daqui.
 //
-// Para atualizar de versao: troque as variaveis abaixo e publique o kit novo
-// em /kit/. O gerador do kit e client/15.25/make-kit.mjs no projeto.
+// Agora o PlayOT distribui cliente proprio: o OTClient (opentibiabr, MIT)
+// com a camada PlayOT ja aplicada (servidor, porta e visual). O jogador so
+// extrai e abre — nao ha config.ini para copiar por cima. Nenhum asset da
+// CipSoft e redistribuido por nos: o proprio cliente baixa data/things/1525
+// em runtime, da mesma fonte publica que o kit antigo ja linkava.
+//
+// $playot_show_legacy_kit controla se o kit antigo (config.ini sobre o
+// cliente oficial, HMO-65) continua visivel como alternativa. Fundador
+// decidiu (HMO-79, 2026-09-10): manter como alternativa por enquanto.
 // ---------------------------------------------------------------------------
+$playot_kit1_url    = '/kit/playot-otclient-4.1-windows-kit1.zip';
+$playot_kit1_sha256 = '61136b63721a07a2301feb0af3b3a1e57d16e7f1dad3b4e279b73bc985d6ec5e';
+$playot_kit1_size   = '~43 MB (mais ~1 GB de graficos baixados na primeira abertura)';
+
+$playot_show_legacy_kit = true;
 $playot_client_tag = '15.25.0a00a0';
 $playot_client_url = 'https://github.com/dudantas/tibia-client/releases/tag/15.25.0a00a0';
 $playot_kit_url    = '/kit/playot-client-config-15.25.zip';
 $playot_kit_sha256 = 'b5d9ec425c345fb14cf02f5692649fd7dedbbfe7c4e5f0b5cf86a7b284b36ef5';
-
-// PLAYOT-AVISO-VIRADA: deixe string vazia depois que a virada terminar (HMO-66).
-$playot_switch_notice = 'O PlayOT ja esta no protocolo 15.25. Se o cliente antigo parou de conectar, e esperado: baixe o cliente novo seguindo os passos abaixo. Suas contas e personagens continuam os mesmos.';
 
 $playot_server = configLua('serverName');
 
@@ -59,71 +68,68 @@ if (!function_exists('playot_download_box')) {
     }
 }
 
-// A pagina e a mesma com ou sem ?step=downloadagreement: o botao do template
-// aponta para o segundo, e nao ha acordo de licenca proprio para aceitar aqui.
-
-if ($playot_switch_notice !== '') {
-    playot_download_box(
-        'Atencao — leia antes de baixar',
-        '<p style="margin:0;">' . $playot_switch_notice . '</p>',
-        $template_path
-    );
-}
-
 playot_download_box(
-    'Passo 1 — baixe o cliente oficial ' . $playot_client_tag,
-    '<p>O cliente do ' . htmlspecialchars($playot_server) . ' e o cliente oficial na versao
-        <strong>' . htmlspecialchars($playot_client_tag) . '</strong> (protocolo 15.25), Windows 64 bits,
-        cerca de 415 MB.</p>
+    'Passo 1 — baixe o cliente do ' . $playot_server,
+    '<p>O cliente do ' . htmlspecialchars($playot_server) . ' ja vem pronto: e so extrair e jogar, sem
+        baixar nada do site oficial do Tibia e sem copiar arquivo de configuracao por cima.</p>
      <p style="text-align:center;">
-        <a href="' . htmlspecialchars($playot_client_url) . '" target="_blank" rel="noopener">
+        <a href="' . htmlspecialchars($playot_kit1_url) . '">
             <img alt="Download do cliente" style="width:90px;height:90px;border:0;"
                  src="' . htmlspecialchars($template_path) . '/images/download_windows.gif"><br>
-            <span style="font-size:12pt;">Baixar o cliente ' . htmlspecialchars($playot_client_tag) . '</span>
+            <span style="font-size:12pt;">Baixar o cliente do ' . htmlspecialchars($playot_server) . '</span>
         </a>
      </p>
-     <p>Extraia o zip numa pasta sua — por exemplo <code>C:\\PlayOT</code>. Dentro dela voce vai ver
-        <code>assets</code>, <code>bin</code>, <code>conf</code> e <code>sounds</code>.</p>',
+     <p>Tamanho do zip: ' . htmlspecialchars($playot_kit1_size) . '.</p>
+     <p>Extraia numa pasta sua — por exemplo <code>C:\\PlayOT</code>. Nao rode de dentro do zip e nao deixe
+        em Arquivos de Programas: o cliente precisa gravar os graficos na propria pasta.</p>
+     <p style="font-size:9pt;color:#5a4a3a;">Se quiser conferir o download:
+        <code>sha256 = ' . htmlspecialchars($playot_kit1_sha256) . '</code></p>',
     $template_path
 );
 
 playot_download_box(
-    'Passo 2 — baixe o kit de configuracao do ' . $playot_server,
-    '<p>Este pacote tem cerca de 2 KB e contem um unico arquivo de texto: e ele que faz o cliente oficial
-        apontar para o ' . htmlspecialchars($playot_server) . '.</p>
-     <p style="text-align:center;font-size:12pt;">
-        <a href="' . htmlspecialchars($playot_kit_url) . '"><strong>Baixar o kit de configuracao 15.25</strong></a>
-     </p>
-     <p>Extraia o kit e copie o <code>conf\\config.ini</code> dele <strong>por cima</strong> do
-        <code>conf\\config.ini</code> que veio do cliente, substituindo o original. Nenhum outro arquivo muda.</p>
-     <p style="font-size:9pt;color:#5a4a3a;">Se quiser conferir o download:
-        <code>sha256 = ' . htmlspecialchars($playot_kit_sha256) . '</code></p>',
+    'Passo 2 — primeira abertura',
+    '<p>Abra <code>otclient.exe</code>. Na primeira vez vai aparecer "Assets for client 15.25 are not
+        installed. Download them now?" — clique em <strong>Download</strong> e espere a barra terminar
+        (alguns minutos, cerca de 1 GB). So acontece uma vez.</p>',
     $template_path
 );
 
 playot_download_box(
     'Passo 3 — crie sua conta e entre',
     '<p>A conta e criada no site, em <a href="?subtopic=createaccount">Create Account</a>. No cliente voce
-        entra com o <strong>e-mail e a senha da conta</strong>, nao com o nome do personagem.</p>
-     <p>Abra <code>bin\\client.exe</code>, faca login e escolha o mundo
-        <strong>' . htmlspecialchars($playot_server) . '</strong>.</p>',
+        entra com o <strong>e-mail e a senha da conta</strong>, nao com o nome do personagem — e nao precisa
+        digitar endereco nem porta, o cliente ja vem apontado para o ' . htmlspecialchars($playot_server) . '.</p>',
     $template_path
 );
 
 playot_download_box(
     'Problemas comuns',
-    '<p><strong>"Only clients with protocol 15.25 are allowed"</strong> — o cliente e de outra versao.
-        Baixe exatamente a release ' . htmlspecialchars($playot_client_tag) . ' do passo 1.</p>
-     <p><strong>"Email or password is not correct"</strong> — use o e-mail e a senha da conta do site.</p>
-     <p><strong>O cliente abre mas nao acha o servidor</strong> — o <code>conf\\config.ini</code> do kit nao
-        foi copiado por cima. Abra o arquivo e confira se a linha <code>loginWebService</code> aponta para
-        este site.</p>
-     <p><strong>Antivirus reclamando do BattlEye</strong> — o cliente oficial vem com BattlEye. Voce nao
-        precisa instala-lo para jogar aqui.</p>
-     <p style="font-size:9pt;color:#5a4a3a;">Ao pedir ajuda, informe a versao do cliente: ela esta em
-        <code>package.json</code>, campo <code>version</code>, dentro da pasta do cliente.</p>',
+    '<p><strong>"Assets for client 15.25 are not installed"</strong> — e o passo 2, normal na primeira vez.
+        Clique em Download.</p>
+     <p><strong>"No assets source found for client 15.25"</strong> — o download dos graficos nao conseguiu
+        sair. Quase sempre e antivirus ou firewall bloqueando o otclient.exe. Libere e abra de novo.</p>
+     <p><strong>"Email or password is not correct"</strong> — use o e-mail e a senha da conta do site, nao
+        o nome do personagem.</p>
+     <p><strong>O cliente abre e fecha na hora</strong> — extraia numa pasta com permissao de escrita
+        (<code>C:\\PlayOT</code> serve); pastas de sistema podem bloquear a gravacao dos graficos.</p>',
     $template_path
 );
+
+if ($playot_show_legacy_kit) {
+    playot_download_box(
+        'Cliente antigo (config.ini sobre o oficial) — ainda disponivel',
+        '<p>Se preferir o metodo antigo (baixar o cliente oficial ' . htmlspecialchars($playot_client_tag) . '
+            e copiar um kit de configuracao por cima), ele continua no ar por enquanto:</p>
+         <p style="text-align:center;">
+            <a href="' . htmlspecialchars($playot_client_url) . '" target="_blank" rel="noopener">cliente oficial ' . htmlspecialchars($playot_client_tag) . '</a>
+            &nbsp;+&nbsp;
+            <a href="' . htmlspecialchars($playot_kit_url) . '">kit de configuracao</a>
+            <span style="font-size:9pt;color:#5a4a3a;"> (sha256 ' . htmlspecialchars($playot_kit_sha256) . ')</span>
+         </p>',
+        $template_path
+    );
+}
 
 playot_download_box(
     'Disclaimer',
