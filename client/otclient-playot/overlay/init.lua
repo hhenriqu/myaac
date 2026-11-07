@@ -5,7 +5,7 @@
 -- Derivado de otclient 4.1 (commit dd56414) init.lua.
 -- O arquivo original esta ao lado como init.lua.upstream-4.1: ao subir de
 -- release do OTClient, refaca o diff em vez de reescrever do zero.
-local PLAYOT_SITE = "https://playot.srv702207.hstgr.cloud"
+local PLAYOT_SITE = "https://playot.opentibia.com.br"
 local PLAYOT_LOGIN = PLAYOT_SITE .. "/login.php"
 -- Travado na versao do servidor: repos/server/src/core.hpp -> CLIENT_VERSION = 1525.
 -- Se o servidor mudar de CLIENT_VERSION, esta linha muda junto e o cliente e
