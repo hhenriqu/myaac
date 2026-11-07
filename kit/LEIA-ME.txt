@@ -22,7 +22,7 @@ PASSO A PASSO
 
 2. Crie sua conta no site, se ainda nao tem:
 
-   https://playot.srv702207.hstgr.cloud/?subtopic=createaccount
+   https://playot.opentibia.com.br/?subtopic=createaccount
 
 3. Abra otclient.exe.
 
